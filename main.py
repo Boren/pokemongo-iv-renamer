@@ -86,7 +86,9 @@ class Renamer():
     def rename_pokemons(self):
         for pokemon in self.pokemons:
             iv = pokemon[1] + pokemon[2] + pokemon[3]
-            name = str(iv) + " - " + str(pokemon[1]) + "/" + str(pokemon[2]) + "/" + str(pokemon[3])
+            if iv < 10:
+                iv = "0" + str(iv)
+            name = str(iv) + ", " + str(pokemon[1]) + "/" + str(pokemon[2]) + "/" + str(pokemon[3])
 
             if pokemon[5] == "NONE" or (pokemon[5] != name and self.config.overwrite):
                 print("Renaming " + pokemon[4] + " to " + name)
@@ -94,7 +96,7 @@ class Renamer():
                 self.api.nickname_pokemon(pokemon_id = pokemon[0], nickname = name)
                 response_dict = self.api.call()
 
-                time.sleep(2)
+                #time.sleep(2)
 
             else:
                 print(pokemon[4] + " already renamed.")
