@@ -15,13 +15,13 @@ class Renamer():
         parser.add_argument("-u", "--username")
         parser.add_argument("-p", "--password")
         parser.add_argument("--clear", action = 'store_true', default = False)
+        parser.add_argument("--format", default = "%ivsum, %atk/%def/%sta")
 
         self.config = parser.parse_args()
         self.config.delay = 2
-        self.config.overwrite = False
+        self.config.overwrite = True
         #self.config.skip_favorite = True
         #self.config.only_favorite = False
-        #self.config.format = "%ivsum %atk/%def/%sta"
 
     def start(self):
         print("Start renamer")
@@ -86,12 +86,24 @@ class Renamer():
 
     def rename_pokemons(self):
         already_renamed = 0
+        renamed = 0
         
         for pokemon in self.pokemons:
             iv = pokemon['attack'] + pokemon['defense'] + pokemon['stamina']
+            percent = int((float(iv) / 45.0) * 100)
+
             if iv < 10:
                 iv = "0" + str(iv)
-            name = str(iv) + ", " + str(pokemon['attack']) + "/" + str(pokemon['defense']) + "/" + str(pokemon['stamina'])
+
+            name = self.config.format
+            name = name.replace("%ivsum", str(iv))
+            name = name.replace("%atk", str(pokemon['attack']))
+            name = name.replace("%def", str(pokemon['defense']))
+            name = name.replace("%sta", str(pokemon['stamina']))
+            name = name.replace("%percent", str(percent))
+            name = name.replace("%cp", str(pokemon['cp']))
+            name = name.replace("%name", pokemon['name'])
+            name = name[:12]
 
             if pokemon['nickname'] == pokemon['name'] or (pokemon['nickname'] != name and self.config.overwrite):
                 print("Renaming " + pokemon['name'] + " (CP " + str(pokemon['cp'])  + ") to " + name)
@@ -101,9 +113,12 @@ class Renamer():
 
                 time.sleep(self.config.delay)
 
+                renamed += 1
+
             else:
                 already_renamed += 1
 
+        print(str(renamed) + " pokemons renamed.")
         print(str(already_renamed) + " pokemons already renamed.")
 
     def clear_pokemons(self):
