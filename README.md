@@ -21,6 +21,8 @@ python2 main.py -a AUTH_SERVICE -u USERNAME -p PASSWORD
 
 -a can be either 'ptc' or 'google'
 
+If you want to reset names to original ones pass the flag "--clear"
+
 ## Credits
 - [tejado](https://github.com/tejado) for the API
 - [PokemonGo-Bot People](https://github.com/PokemonGoF/PokemonGo-Bot) for some of the code
