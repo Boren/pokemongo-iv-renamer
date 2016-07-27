@@ -93,7 +93,7 @@ class Renamer():
                 iv = "0" + str(iv)
             name = str(iv) + ", " + str(pokemon['attack']) + "/" + str(pokemon['defense']) + "/" + str(pokemon['stamina'])
 
-            if pokemon['nickname'] == pokemon['name'] or (pokemon['nickname'] != name and self.config.overwrite):
+            if pokemon['nickname'] == "NONE" or pokemon['nickname'] == pokemon['name'] or (pokemon['nickname'] != name and self.config.overwrite):
                 print("Renaming " + pokemon['name'] + " (CP " + str(pokemon['cp'])  + ") to " + name)
 
                 self.api.nickname_pokemon(pokemon_id = pokemon['id'], nickname = name)
@@ -120,7 +120,7 @@ class Renamer():
                 
                 cleared += 1
 
-        print("Cleared " + cleared + " names")
+        print("Cleared " + str(cleared) + " names")
 
 if __name__ == '__main__':
     Renamer().start()
