@@ -4,7 +4,12 @@
 import json
 import time
 import argparse
+from itertools import groupby
 from pgoapi import PGoApi
+
+class Colors:
+    OKGREEN = '\033[92m'
+    ENDC = '\033[0m'
 
 class Renamer(object):
     """Main renamer class object"""
@@ -23,6 +28,7 @@ class Renamer(object):
         parser.add_argument("-u", "--username")
         parser.add_argument("-p", "--password")
         parser.add_argument("--clear", action='store_true', default=False)
+        parser.add_argument("-lo", "--list_only", action='store_true', default=False)
         parser.add_argument("--format", default="%ivsum, %atk/%def/%sta")
 
         self.config = parser.parse_args()
@@ -38,8 +44,11 @@ class Renamer(object):
         self.init_config()
         self.setup_api()
         self.get_pokemons()
+        self.print_pokemons()
 
-        if self.config.clear:
+        if self.config.list_only:
+            pass
+        elif self.config.clear:
             self.clear_pokemons()
         else:
             self.rename_pokemons()
@@ -84,6 +93,8 @@ class Renamer(object):
                     attack = pokemon.get('individual_attack', 0)
                     defense = pokemon.get('individual_defense', 0)
                     stamina = pokemon.get('individual_stamina', 0)
+                    iv_percent = (float(attack + defense + stamina) / 45.0) * 100.0
+
                     nickname = pokemon.get('nickname', 'NONE')
                     combat_power = pokemon.get('cp', 0)
 
@@ -95,11 +106,28 @@ class Renamer(object):
                         'cp': combat_power,
                         'attack': attack,
                         'defense': defense,
-                        'stamina': stamina
+                        'stamina': stamina,
+                        'iv_percent': iv_percent,
                     })
                 except KeyError:
                     pass
 
+    def print_pokemons(self):
+        """Print pokemons and their stats"""
+        sorted_mons = sorted(self.pokemons, key=lambda k: (k['num'], -k['iv_percent']))
+        groups = groupby(sorted_mons, key=lambda k: k['num'])
+
+        for key, group in groups:
+            group = list(group)
+            print "\n--------- {} ---------".format(self.pokemon_list[key]['Name'])
+            best_iv_pokemon = max(group, key=lambda k: k['iv_percent'])
+            best_iv_pokemon['best_iv'] = True
+
+            for pokemon in group:
+                info_text = "CP {cp} - {attack}/{defense}/{stamina} {iv_percent:.2f}%".format(**pokemon)
+                if pokemon.get('best_iv', False) and len(group) > 1:
+                    info_text = Colors.OKGREEN + info_text + Colors.ENDC
+                print info_text
 
     def rename_pokemons(self):
         """Renames pokemons according to configuration"""
@@ -108,7 +136,7 @@ class Renamer(object):
 
         for pokemon in self.pokemons:
             individual_value = pokemon['attack'] + pokemon['defense'] + pokemon['stamina']
-            percent = int((float(individual_value) / 45.0) * 100)
+            iv_percent = int(pokemon['iv_percent'])
 
             if individual_value < 10:
                 individual_value = "0" + str(individual_value)
@@ -118,7 +146,7 @@ class Renamer(object):
             name = name.replace("%atk", str(pokemon['attack']))
             name = name.replace("%def", str(pokemon['defense']))
             name = name.replace("%sta", str(pokemon['stamina']))
-            name = name.replace("%percent", str(percent))
+            name = name.replace("%percent", str(iv_percent))
             name = name.replace("%cp", str(pokemon['cp']))
             name = name.replace("%name", pokemon['name'])
             name = name[:12]
