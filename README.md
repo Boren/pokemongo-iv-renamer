@@ -19,25 +19,25 @@ pip install -r requirements.txt (Might need to sudo)
 python2 main.py -a AUTH_SERVICE -u USERNAME -p PASSWORD
 ```
 
--a can be either 'ptc' or 'google'
+| Argument             | Description                                   | Required | Example                                         |
+| -------------------- | --------------------------------------------- | -------- | ----------------------------------------------- |
+| `-a`                 | Login service, `google` or `ptc`              | yes      |                                                 |
+| `-u`                 | Username                                      | yes      |                                                 |
+| `-p`                 | Password                                      | yes      |                                                 |
+| `--format`           | Custom nickname format, placeholders below    | optional | `--format "%percent% %name"` => `100% Vaporeon` |
+| `--list_only`, `-lo` | Show only Pokémons' IVs without renaming them | optional |                                                 |
+| `--clear`            | Reset names to original                       | optional |                                                 |
 
-You can also pass a custom format if you want.
-Just add --format "YOUR-FORMAT"
+Placeholders for custom nickname format (automatically gets cropped to 12 characters):
 
-Format automatically replaces these values:
-- %name (Vaporeon)
-- %cp (1800)
-- %atk (15)
-- %def (15)
-- %sta (15)
-- %percent (100)
-
-Example:
---format("%percent% %name") prints ("100% Vaporeon")
-
-Automatically gets cropped to 12 characters.
-
-If you want to reset names to original ones pass the flag "--clear"
+| Placeholder | Description    | Example  |
+| ----------- | -------------- | -------- |
+| `%name`     | Name           | Vaporeon |
+| `%cp`       | CP             | 1800     |
+| `%atk`      | Attack         | 15       |
+| `%def`      | Defense        | 15       |
+| `%sta`      | Stamina        | 15       |
+| `%percent`  | IV perfection  | 100      |
 
 ## Credits
 - [tejado](https://github.com/tejado) for the API
