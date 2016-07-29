@@ -30,6 +30,7 @@ class Renamer(object):
         parser.add_argument("--clear", action='store_true', default=False)
         parser.add_argument("-lo", "--list_only", action='store_true', default=False)
         parser.add_argument("--format", default="%ivsum, %atk/%def/%sta")
+        parser.add_argument("-l", "--locale", default="en")
 
         self.config = parser.parse_args()
         self.config.delay = 2
@@ -40,8 +41,15 @@ class Renamer(object):
     def start(self):
         """Start renamer"""
         print "Start renamer"
-        self.pokemon_list = json.load(open('pokemon.json'))
+
         self.init_config()
+
+        try:
+            self.pokemon_list = json.load(open('locales/pokemon.' + self.config.locale + '.json'))
+        except IOError, error:
+            print "The selected language is currently not supported"
+            exit(0)
+
         self.setup_api()
         self.get_pokemons()
         self.print_pokemons()
@@ -87,8 +95,8 @@ class Renamer(object):
                     pokemon = item['inventory_item_data']['pokemon_data']
 
                     pid = pokemon['id']
-                    num = int(pokemon['pokemon_id']) - 1
-                    name = self.pokemon_list[int(num)]['Name']
+                    num = int(pokemon['pokemon_id'])
+                    name = self.pokemon_list[str(num)]
 
                     attack = pokemon.get('individual_attack', 0)
                     defense = pokemon.get('individual_defense', 0)
@@ -119,7 +127,7 @@ class Renamer(object):
 
         for key, group in groups:
             group = list(group)
-            print "\n--------- {} ---------".format(self.pokemon_list[key]['Name'])
+            print "\n--------- " + self.pokemon_list[str(key)] + " ---------"
             best_iv_pokemon = max(group, key=lambda k: k['iv_percent'])
             best_iv_pokemon['best_iv'] = True
 
@@ -141,6 +149,9 @@ class Renamer(object):
             if individual_value < 10:
                 individual_value = "0" + str(individual_value)
 
+            num = int(pokemon['num'])
+            pokemon_name = self.pokemon_list[str(num)]
+
             name = self.config.format
             name = name.replace("%ivsum", str(individual_value))
             name = name.replace("%atk", str(pokemon['attack']))
@@ -148,13 +159,13 @@ class Renamer(object):
             name = name.replace("%sta", str(pokemon['stamina']))
             name = name.replace("%percent", str(iv_percent))
             name = name.replace("%cp", str(pokemon['cp']))
-            name = name.replace("%name", pokemon['name'])
+            name = name.replace("%name", pokemon_name)
             name = name[:12]
 
             if pokemon['nickname'] == "NONE" \
-               or pokemon['nickname'] == pokemon['name'] \
+               or pokemon['nickname'] == pokemon_name \
                or (pokemon['nickname'] != name and self.config.overwrite):
-                print "Renaming " + pokemon['name'] + " (CP " + str(pokemon['cp'])  + ") to " + name
+                print "Renaming " + pokemon_name + " (CP " + str(pokemon['cp'])  + ") to " + name
 
                 self.api.nickname_pokemon(pokemon_id=pokemon['id'], nickname=name)
                 self.api.call()
@@ -174,10 +185,13 @@ class Renamer(object):
         cleared = 0
 
         for pokemon in self.pokemons:
-            if pokemon['nickname'] != "NONE" and pokemon['nickname'] != pokemon['name']:
-                print "Resetting " + pokemon['nickname'] + " to " + pokemon['name']
+            num = int(pokemon['num'])
+            name_original = self.pokemon_list[str(num)]
 
-                self.api.nickname_pokemon(pokemon_id=pokemon['id'], nickname=pokemon['name'])
+            if pokemon['nickname'] != "NONE" and pokemon['nickname'] != name_original:
+                print "Resetting " + pokemon['nickname'] + " to " + name_original
+
+                self.api.nickname_pokemon(pokemon_id=pokemon['id'], nickname=name_original)
                 self.api.call()
 
                 time.sleep(self.config.delay)

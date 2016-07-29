@@ -26,6 +26,7 @@ python2 main.py -a AUTH_SERVICE -u USERNAME -p PASSWORD
 | `-p`                 | Password                                      | yes      |                                                 |
 | `--format`           | Custom nickname format, placeholders below    | optional | `--format "%percent% %name"` => `100% Vaporeon` |
 | `--list_only`, `-lo` | Show only Pokémons' IVs without renaming them | optional |                                                 |
+| `--locale`, `-l`     | Translations for Pokémon names, default `en`  | optional | `--locale de`, `-l de` (check `locales` folder for more options) |
 | `--clear`            | Reset names to original                       | optional |                                                 |
 
 Placeholders for custom nickname format (automatically gets cropped to 12 characters):
