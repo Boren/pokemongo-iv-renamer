@@ -127,7 +127,7 @@ class Renamer(object):
 
         for key, group in groups:
             group = list(group)
-            print "\n--------- " + self.pokemon_list[str(key)] + " ---------"
+            print "\n--------- " + self.pokemon_list[str(key)].replace(u'\N{MALE SIGN}','(M)').replace(u'\N{FEMALE SIGN}','(F)') + " ---------"
             best_iv_pokemon = max(group, key=lambda k: k['iv_percent'])
             best_iv_pokemon['best_iv'] = True
 
