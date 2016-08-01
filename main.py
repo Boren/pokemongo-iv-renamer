@@ -1,21 +1,27 @@
 #!/usr/bin/env python
 """This module renames pokemon according to user configuration"""
 
+import argparse
 import json
 import time
-import argparse
 from itertools import groupby
+
 from pgoapi import PGoApi
 
+
 class Colors:
+    def __init__(self):
+        pass
+
     OKGREEN = '\033[92m'
     ENDC = '\033[0m'
+
 
 class Renamer(object):
     """Main renamer class object"""
 
     def __init__(self):
-        self.pokemons = []
+        self.pokemon = []
         self.api = None
         self.config = None
         self.pokemon_list = None
@@ -35,8 +41,8 @@ class Renamer(object):
         self.config = parser.parse_args()
         self.config.delay = 2
         self.config.overwrite = True
-        #self.config.skip_favorite = True
-        #self.config.only_favorite = False
+        # self.config.skip_favorite = True
+        # self.config.only_favorite = False
 
     def start(self):
         """Start renamer"""
@@ -51,15 +57,15 @@ class Renamer(object):
             exit(0)
 
         self.setup_api()
-        self.get_pokemons()
-        self.print_pokemons()
+        self.get_pokemon()
+        self.print_pokemon()
 
         if self.config.list_only:
             pass
         elif self.config.clear:
-            self.clear_pokemons()
+            self.clear_pokemon()
         else:
-            self.rename_pokemons()
+            self.rename_pokemon()
 
     def setup_api(self):
         """Prepare and sign in to API"""
@@ -73,17 +79,17 @@ class Renamer(object):
 
         print "Signed in"
 
-    def get_pokemons(self):
-        """Fetch pokemons from server and store in array"""
+    def get_pokemon(self):
+        """Fetch pokemon from server and store in array"""
         print "Getting pokemon list"
         self.api.get_inventory()
         response_dict = self.api.call()
 
-        self.pokemons = []
+        self.pokemon = []
         inventory_items = response_dict['responses'] \
-                                       ['GET_INVENTORY'] \
-                                       ['inventory_delta'] \
-                                       ['inventory_items']
+            ['GET_INVENTORY'] \
+            ['inventory_delta'] \
+            ['inventory_items']
 
         for item in inventory_items:
             try:
@@ -106,7 +112,7 @@ class Renamer(object):
                     nickname = pokemon.get('nickname', 'NONE')
                     combat_power = pokemon.get('cp', 0)
 
-                    self.pokemons.append({
+                    self.pokemon.append({
                         'id': pid,
                         'name': name,
                         'nickname': nickname,
@@ -120,14 +126,15 @@ class Renamer(object):
                 except KeyError:
                     pass
 
-    def print_pokemons(self):
-        """Print pokemons and their stats"""
-        sorted_mons = sorted(self.pokemons, key=lambda k: (k['num'], -k['iv_percent']))
+    def print_pokemon(self):
+        """Print pokemon and their stats"""
+        sorted_mons = sorted(self.pokemon, key=lambda k: (k['num'], -k['iv_percent']))
         groups = groupby(sorted_mons, key=lambda k: k['num'])
 
         for key, group in groups:
             group = list(group)
-            print "\n--------- " + self.pokemon_list[str(key)] + " ---------"
+            print "\n--------- " + self.pokemon_list[str(key)].replace(u'\N{MALE SIGN}', '(M)').replace(
+                u'\N{FEMALE SIGN}', '(F)') + " ---------"
             best_iv_pokemon = max(group, key=lambda k: k['iv_percent'])
             best_iv_pokemon['best_iv'] = True
 
@@ -137,12 +144,12 @@ class Renamer(object):
                     info_text = Colors.OKGREEN + info_text + Colors.ENDC
                 print info_text
 
-    def rename_pokemons(self):
-        """Renames pokemons according to configuration"""
+    def rename_pokemon(self):
+        """Renames pokemon according to configuration"""
         already_renamed = 0
         renamed = 0
 
-        for pokemon in self.pokemons:
+        for pokemon in self.pokemon:
             individual_value = pokemon['attack'] + pokemon['defense'] + pokemon['stamina']
             iv_percent = int(pokemon['iv_percent'])
 
@@ -163,9 +170,11 @@ class Renamer(object):
             name = name[:12]
 
             if pokemon['nickname'] == "NONE" \
-               or pokemon['nickname'] == pokemon_name \
-               or (pokemon['nickname'] != name and self.config.overwrite):
-                print "Renaming " + pokemon_name + " (CP " + str(pokemon['cp'])  + ") to " + name
+                    or pokemon['nickname'] == pokemon_name \
+                    or (pokemon['nickname'] != name and self.config.overwrite):
+                print "Renaming " + pokemon_name.replace(u'\N{MALE SIGN}', '(M)').replace(u'\N{FEMALE SIGN}',
+                                                                                          '(F)') + " (CP " + str(
+                    pokemon['cp']) + ") to " + name
 
                 self.api.nickname_pokemon(pokemon_id=pokemon['id'], nickname=name)
                 self.api.call()
@@ -177,14 +186,14 @@ class Renamer(object):
             else:
                 already_renamed += 1
 
-        print str(renamed) + " pokemons renamed."
-        print str(already_renamed) + " pokemons already renamed."
+        print str(renamed) + " pokemon renamed."
+        print str(already_renamed) + " pokemon already renamed."
 
-    def clear_pokemons(self):
+    def clear_pokemon(self):
         """Resets all pokemon names to the original"""
         cleared = 0
 
-        for pokemon in self.pokemons:
+        for pokemon in self.pokemon:
             num = int(pokemon['num'])
             name_original = self.pokemon_list[str(num)]
 
@@ -199,6 +208,7 @@ class Renamer(object):
                 cleared += 1
 
         print "Cleared " + str(cleared) + " names"
+
 
 if __name__ == '__main__':
     Renamer().start()
