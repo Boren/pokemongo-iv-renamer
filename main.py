@@ -127,7 +127,7 @@ class Renamer(object):
 
         for key, group in groups:
             group = list(group)
-            print "\n--------- " + self.pokemon_list[str(key)] + " ---------"
+            print "\n--------- " + self.pokemon_list[str(key)].replace(u'\N{MALE SIGN}','(M)').replace(u'\N{FEMALE SIGN}','(F)') + " ---------"
             best_iv_pokemon = max(group, key=lambda k: k['iv_percent'])
             best_iv_pokemon['best_iv'] = True
 
@@ -165,7 +165,7 @@ class Renamer(object):
             if pokemon['nickname'] == "NONE" \
                or pokemon['nickname'] == pokemon_name \
                or (pokemon['nickname'] != name and self.config.overwrite):
-                print "Renaming " + pokemon_name + " (CP " + str(pokemon['cp'])  + ") to " + name
+                print "Renaming " + pokemon_name.replace(u'\N{MALE SIGN}','(M)').replace(u'\N{FEMALE SIGN}','(F)') + " (CP " + str(pokemon['cp'])  + ") to " + name
 
                 self.api.nickname_pokemon(pokemon_id=pokemon['id'], nickname=name)
                 self.api.call()
