@@ -46,7 +46,7 @@ class Renamer(object):
 
         try:
             self.pokemon_list = json.load(open('locales/pokemon.' + self.config.locale + '.json'))
-        except IOError, error:
+        except IOError:
             print "The selected language is currently not supported"
             exit(0)
 
@@ -127,7 +127,7 @@ class Renamer(object):
 
         for key, group in groups:
             group = list(group)
-            print "\n--------- " + self.pokemon_list[str(key)].replace(u'\N{MALE SIGN}','(M)').replace(u'\N{FEMALE SIGN}','(F)') + " ---------"
+            print "\n--------- " + self.pokemon_list[str(key)].replace(u'\N{MALE SIGN}', '(M)').replace(u'\N{FEMALE SIGN}', '(F)') + " ---------"
             best_iv_pokemon = max(group, key=lambda k: k['iv_percent'])
             best_iv_pokemon['best_iv'] = True
 
@@ -165,10 +165,16 @@ class Renamer(object):
             if pokemon['nickname'] == "NONE" \
                or pokemon['nickname'] == pokemon_name \
                or (pokemon['nickname'] != name and self.config.overwrite):
-                print "Renaming " + pokemon_name.replace(u'\N{MALE SIGN}','(M)').replace(u'\N{FEMALE SIGN}','(F)') + " (CP " + str(pokemon['cp'])  + ") to " + name
 
                 self.api.nickname_pokemon(pokemon_id=pokemon['id'], nickname=name)
-                self.api.call()
+                response = self.api.call()
+
+                result = response['responses']['NICKNAME_POKEMON']['result']
+
+                if result == 1:
+                    print "Renaming " + pokemon_name.replace(u'\N{MALE SIGN}', '(M)').replace(u'\N{FEMALE SIGN}', '(F)') + " (CP " + str(pokemon['cp'])  + ") to " + name
+                else:
+                    print "Something went wrong with renaming " + pokemon_name.replace(u'\N{MALE SIGN}', '(M)').replace(u'\N{FEMALE SIGN}', '(F)') + " (CP " + str(pokemon['cp'])  + ") to " + name + ". Error code: " + str(result)
 
                 time.sleep(self.config.delay)
 
@@ -189,10 +195,15 @@ class Renamer(object):
             name_original = self.pokemon_list[str(num)]
 
             if pokemon['nickname'] != "NONE" and pokemon['nickname'] != name_original:
-                print "Resetting " + pokemon['nickname'] + " to " + name_original
-
                 self.api.nickname_pokemon(pokemon_id=pokemon['id'], nickname=name_original)
-                self.api.call()
+                response = self.api.call()
+
+                result = response['responses']['NICKNAME_POKEMON']['result']		
+
+                if result == 1:
+                    print "Resetted " + pokemon['nickname'] +  " to " + name_original
+                else:
+                    print "Something went wrong with resetting " + pokemon['nickname'] + " to " + name_original + ". Error code: " + str(result)
 
                 time.sleep(self.config.delay)
 
