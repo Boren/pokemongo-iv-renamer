@@ -1,15 +1,21 @@
 #!/usr/bin/env python
 """This module renames pokemon according to user configuration"""
 
+import argparse
 import json
 import time
-import argparse
 from itertools import groupby
+
 from pgoapi import PGoApi
 
+
 class Colors:
+    def __init__(self):
+        pass
+
     OKGREEN = '\033[92m'
     ENDC = '\033[0m'
+
 
 class Renamer(object):
     """Main renamer class object"""
@@ -35,8 +41,8 @@ class Renamer(object):
         self.config = parser.parse_args()
         self.config.delay = 2
         self.config.overwrite = True
-        #self.config.skip_favorite = True
-        #self.config.only_favorite = False
+        # self.config.skip_favorite = True
+        # self.config.only_favorite = False
 
     def start(self):
         """Start renamer"""
@@ -81,9 +87,9 @@ class Renamer(object):
 
         self.pokemons = []
         inventory_items = response_dict['responses'] \
-                                       ['GET_INVENTORY'] \
-                                       ['inventory_delta'] \
-                                       ['inventory_items']
+            ['GET_INVENTORY'] \
+            ['inventory_delta'] \
+            ['inventory_items']
 
         for item in inventory_items:
             try:
@@ -127,7 +133,8 @@ class Renamer(object):
 
         for key, group in groups:
             group = list(group)
-            print "\n--------- " + self.pokemon_list[str(key)].replace(u'\N{MALE SIGN}','(M)').replace(u'\N{FEMALE SIGN}','(F)') + " ---------"
+            print "\n--------- " + self.pokemon_list[str(key)].replace(u'\N{MALE SIGN}', '(M)').replace(
+                u'\N{FEMALE SIGN}', '(F)') + " ---------"
             best_iv_pokemon = max(group, key=lambda k: k['iv_percent'])
             best_iv_pokemon['best_iv'] = True
 
@@ -163,9 +170,11 @@ class Renamer(object):
             name = name[:12]
 
             if pokemon['nickname'] == "NONE" \
-               or pokemon['nickname'] == pokemon_name \
-               or (pokemon['nickname'] != name and self.config.overwrite):
-                print "Renaming " + pokemon_name.replace(u'\N{MALE SIGN}','(M)').replace(u'\N{FEMALE SIGN}','(F)') + " (CP " + str(pokemon['cp'])  + ") to " + name
+                    or pokemon['nickname'] == pokemon_name \
+                    or (pokemon['nickname'] != name and self.config.overwrite):
+                print "Renaming " + pokemon_name.replace(u'\N{MALE SIGN}', '(M)').replace(u'\N{FEMALE SIGN}',
+                                                                                          '(F)') + " (CP " + str(
+                    pokemon['cp']) + ") to " + name
 
                 self.api.nickname_pokemon(pokemon_id=pokemon['id'], nickname=name)
                 self.api.call()
@@ -199,6 +208,7 @@ class Renamer(object):
                 cleared += 1
 
         print "Cleared " + str(cleared) + " names"
+
 
 if __name__ == '__main__':
     Renamer().start()
