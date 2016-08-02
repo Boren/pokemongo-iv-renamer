@@ -40,6 +40,35 @@ Placeholders for custom nickname format (automatically gets cropped to 12 charac
 | `%sta`      | Stamina        | 15       |
 | `%percent`  | IV perfection  | 100      |
 
+## Installation with Docker
+### Requirements
+  - Docker or Docker toolbox 
+  
+
+### Guide
+  ```
+  docker pull monkeystorm/pogo-renamer
+  docker run --name CONTAINERNAME -it pogo-renamer /bin/bash
+  cd /home/PokemonGO-IV-Renamer/
+  python2 main.py -a AUTH_SERVICE -u USERNAME -p PASSWORD
+  ```
+##commands
+  To leave the docker container:
+```
+  exit
+```
+  
+  Once the container has been started once you can reuse it by typing
+```
+        docker start CONTAINERNAME
+```
+  then
+```
+        docker attach CONTAINERNAME
+        python2 main.py -a AUTH_SERVICE -u USERNAME -p PASSWORD
+```
+  
+
 ## Credits
 - [tejado](https://github.com/tejado) for the API
 - [PokemonGo-Bot People](https://github.com/PokemonGoF/PokemonGo-Bot) for some of the code
