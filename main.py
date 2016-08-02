@@ -31,9 +31,9 @@ class Renamer(object):
         parser.add_argument("-lo", "--list_only", action='store_true', default=False)
         parser.add_argument("--format", default="%ivsum, %atk/%def/%sta")
         parser.add_argument("-l", "--locale", default="en")
+	parser.add_argument("-d", "--delay", type=int, default=4)
 
         self.config = parser.parse_args()
-        self.config.delay = 2
         self.config.overwrite = True
         #self.config.skip_favorite = True
         #self.config.only_favorite = False

@@ -28,6 +28,7 @@ python2 main.py -a AUTH_SERVICE -u USERNAME -p PASSWORD
 | `--list_only`, `-lo` | Show only Pokémons' IVs without renaming them | optional |                                                 |
 | `--locale`, `-l`     | Translations for Pokémon names, default `en`  | optional | `--locale de`, `-l de` (check `locales` folder for more options) |
 | `--clear`            | Reset names to original                       | optional |                                                 |
+| `--delay`, `-d`      | Time to wait between requests. Default 4 sec  | optional |                                                 |
 
 Placeholders for custom nickname format (automatically gets cropped to 12 characters):
 
@@ -38,6 +39,7 @@ Placeholders for custom nickname format (automatically gets cropped to 12 charac
 | `%atk`      | Attack         | 15       |
 | `%def`      | Defense        | 15       |
 | `%sta`      | Stamina        | 15       |
+| `%ivsum`    | IV Sum         | 45       |
 | `%percent`  | IV perfection  | 100      |
 
 ## Installation with Docker
