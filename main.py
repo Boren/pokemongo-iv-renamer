@@ -176,8 +176,6 @@ class Renamer(object):
                 else:
                     print "Something went wrong with renaming " + pokemon_name.replace(u'\N{MALE SIGN}', '(M)').replace(u'\N{FEMALE SIGN}', '(F)') + " (CP " + str(pokemon['cp'])  + ") to " + name + ". Error code: " + str(result)
 
-                time.sleep(self.config.delay)
-
                 renamed += 1
 
             else:
@@ -196,6 +194,9 @@ class Renamer(object):
 
             if pokemon['nickname'] != "NONE" and pokemon['nickname'] != name_original:
                 self.api.nickname_pokemon(pokemon_id=pokemon['id'], nickname=name_original)
+                
+                time.sleep(self.config.delay)
+                
                 response = self.api.call()
 
                 result = response['responses']['NICKNAME_POKEMON']['result']		
