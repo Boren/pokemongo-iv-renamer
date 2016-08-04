@@ -22,6 +22,8 @@ pip install -r requirements.txt (Might need to sudo)
 python2 main.py -a AUTH_SERVICE -u USERNAME -p PASSWORD
 ```
 
+**Note:** If you use a Google account and have two-factor authentication enabled, you need to [generate an app password](https://security.google.com/settings/security/apppasswords) and use that to log in. 
+
 | Argument             | Description                                   | Required | Example                                         |
 | -------------------- | --------------------------------------------- | -------- | ----------------------------------------------- |
 | `-a`                 | Login service, `google` or `ptc`              | yes      |                                                 |
