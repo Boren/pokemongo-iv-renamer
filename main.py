@@ -27,6 +27,8 @@ class Renamer(object):
         parser.add_argument("-a", "--auth_service")
         parser.add_argument("-u", "--username")
         parser.add_argument("-p", "--password")
+        parser.add_argument("-lat", "--latitude", help="Latitude", required=True)
+        parser.add_argument("-long", "--longitude", help="Longitude", required=True)
         parser.add_argument("--clear", action='store_true', default=False)
         parser.add_argument("-lo", "--list_only", action='store_true', default=False)
         parser.add_argument("--format", default="%ivsum, %atk/%def/%sta")
@@ -64,6 +66,8 @@ class Renamer(object):
     def setup_api(self):
         """Prepare and sign in to API"""
         self.api = PGoApi()
+
+        self.api.set_position(float(self.config.latitude), float(self.config.longitude), 0.0)
 
         if not self.api.login(self.config.auth_service,
                               str(self.config.username),
