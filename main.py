@@ -198,10 +198,10 @@ class Renamer(object):
                 self.api.nickname_pokemon(pokemon_id=pokemon['id'], nickname=name_original)
                 response = self.api.call()
 
-                result = response['responses']['NICKNAME_POKEMON']['result']		
+                result = response['responses']['NICKNAME_POKEMON']['result']
 
                 if result == 1:
-                    print "Resetted " + pokemon['nickname'] +  " to " + name_original
+                    print "Reset " + pokemon['nickname'] +  " to " + name_original
                 else:
                     print "Something went wrong with resetting " + pokemon['nickname'] + " to " + name_original + ". Error code: " + str(result)
 
