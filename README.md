@@ -19,16 +19,17 @@ pip install -r requirements.txt (Might need to sudo)
 python2 main.py -a AUTH_SERVICE -u USERNAME -p PASSWORD
 ```
 
-| Argument             | Description                                   | Required | Example                                         |
-| -------------------- | --------------------------------------------- | -------- | ----------------------------------------------- |
-| `-a`                 | Login service, `google` or `ptc`              | yes      |                                                 |
-| `-u`                 | Username                                      | yes      |                                                 |
-| `-p`                 | Password                                      | yes      |                                                 |
-| `--format`           | Custom nickname format, placeholders below    | optional | `--format "%percent% %name"` => `100% Vaporeon` |
-| `--list_only`, `-lo` | Show only Pokémons' IVs without renaming them | optional |                                                 |
-| `--locale`, `-l`     | Translations for Pokémon names, default `en`  | optional | `--locale de`, `-l de` (check `locales` folder for more options) |
-| `--clear`            | Reset names to original                       | optional |                                                 |
-| `--delay`, `-d`      | Time to wait between requests. Default 4 sec  | optional |                                                 |
+| Argument             | Description                                                       | Required | Example                                         |
+| -------------------- | ----------------------------------------------------------------- | -------- | ----------------------------------------------- |
+| `-a`                 | Login service, `google` or `ptc`                                  | yes      |                                                 |
+| `-u`                 | Username                                                          | yes      |                                                 |
+| `-p`                 | Password                                                          | yes      |                                                 |
+| `--format`           | Custom nickname format, placeholders below                        | optional | `--format "%percent% %name"` => `100% Vaporeon` |
+| `--list_only`, `-lo` | Show only Pokémons' IVs without renaming them                     | optional |                                                 |
+| `--locale`, `-l`     | Translations for Pokémon names; default `en`                      | optional | `--locale de`, `-l de` (check `locales` folder for more options) |
+| `--clear`            | Reset names to original                                           | optional |                                                 |
+| `--min_delay`        | Minimum time (in seconds) to wait between requests; default `10`  | optional |                                                 |
+| `--max_delay`        | Maximum time (in seconds) to wait between requests; default `20`  | optional |                                                 |
 
 Placeholders for custom nickname format (automatically gets cropped to 12 characters):
 
