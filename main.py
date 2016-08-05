@@ -107,6 +107,7 @@ class Renamer(object):
                     defense = pokemon.get('individual_defense', 0)
                     stamina = pokemon.get('individual_stamina', 0)
                     iv_percent = (float(attack + defense + stamina) / 45.0) * 100.0
+                    is_favorite= pokemon.get('favorite', 0)
 
                     nickname = pokemon.get('nickname', 'NONE')
                     combat_power = pokemon.get('cp', 0)
@@ -121,6 +122,7 @@ class Renamer(object):
                         'defense': defense,
                         'stamina': stamina,
                         'iv_percent': iv_percent,
+                        'is_favorite': is_favorite,
                     })
                 except KeyError:
                     pass
@@ -141,6 +143,8 @@ class Renamer(object):
 
             for pokemon in group:
                 info_text = "CP {cp} - {attack}/{defense}/{stamina} {iv_percent:.2f}%".format(**pokemon)
+                if int(pokemon.get('is_favorite')) > 0:
+                    info_text += " Favorite"
                 if pokemon.get('best_iv', False) and len(group) > 1:
                     info_text = Colors.OKGREEN + info_text + Colors.ENDC
                 print info_text
