@@ -32,7 +32,7 @@ python2 main.py -a AUTH_SERVICE -u USERNAME -p PASSWORD
 | `--locale`, `-l`     | Translations for Pokémon names, default `en`  | optional | `--locale de`, `-l de` (check `locales` folder for more options) |
 | `--clear`            | Reset names to original                       | optional |                                                 |
 | `--delay`, `-d`      | Time to wait between requests. Default 4 sec  | optional |                                                 |
-| `--iv_value`, `-iv`  | Filter for iv percent. Default 0.             | optional | `--iv_value 90`, '-l 90` (rename pokemon with at least 90 iv percent |
+| `--iv`               | Filter for iv. Default 0.                     | optional | `--iv 90` (rename pokemon with at least 90 iv percent) |
 
 Placeholders for custom nickname format (automatically gets cropped to 12 characters):
 
