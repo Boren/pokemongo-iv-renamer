@@ -99,7 +99,7 @@ class Renamer(object):
                     pokemon = item['inventory_item_data']['pokemon_data']
 
                     pid = pokemon['id']
-                    num = int(pokemon['pokemon_id'])
+                    num = pokemon['pokemon_id']
                     name = self.pokemon_list[str(num)]
 
                     attack = pokemon.get('individual_attack', 0)
@@ -112,9 +112,9 @@ class Renamer(object):
 
                     self.pokemons.append({
                         'id': pid,
+                        'num': num,
                         'name': name,
                         'nickname': nickname,
-                        'num': num,
                         'cp': combat_power,
                         'attack': attack,
                         'defense': defense,
@@ -156,10 +156,11 @@ class Renamer(object):
             if individual_value < 10:
                 individual_value = "0" + str(individual_value)
 
-            num = int(pokemon['num'])
+            num = pokemon['num']
             pokemon_name = self.pokemon_list[str(num)]
 
             name = self.config.format
+            name = name.replace("%id", str(num))
             name = name.replace("%ivsum", str(individual_value))
             name = name.replace("%atk", str(pokemon['attack']))
             name = name.replace("%def", str(pokemon['defense']))
