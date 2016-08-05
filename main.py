@@ -37,6 +37,9 @@ class Renamer(object):
         parser.add_argument("--min_delay", type=int, default=10)
         parser.add_argument("--max_delay", type=int, default=20)
         parser.add_argument("--iv", type=int, default=0)
+        parser.add_argument("--lat", help='Latitude (negative for south)', type=float)
+        parser.add_argument("--lng", help='Longitude (negative for west)', type=float)
+        parser.add_argument("--alt", help='Altitude', type=float)
 
         self.config = parser.parse_args()
         self.config.overwrite = True
@@ -69,6 +72,9 @@ class Renamer(object):
     def setup_api(self):
         """Prepare and sign in to API"""
         self.api = PGoApi()
+        
+        if not (self.config.lat is None or self.config.lng is None or self.config.alt is None):
+            self.api.set_position(self.config.lat, self.config.lng, self.config.alt)
 
         if not self.api.login(self.config.auth_service,
                               str(self.config.username),
