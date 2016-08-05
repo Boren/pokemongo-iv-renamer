@@ -170,17 +170,10 @@ class Renamer(object):
             name = name.replace("%name", pokemon_name)
             name = name[:12]
 
-<<<<<<< HEAD
             if (pokemon['nickname'] == "NONE" \
                 or pokemon['nickname'] == pokemon_name \
                 or (pokemon['nickname'] != name and self.config.overwrite)) \
                and iv_percent > self.config.iv:
-=======
-            if pokemon['nickname'] == "NONE" \
-               or pokemon['nickname'] == pokemon_name \
-               or (pokemon['nickname'] != name and self.config.overwrite) \
-               and (iv_percent > self.config.iv):
->>>>>>> Boren-master
 
                 self.api.nickname_pokemon(pokemon_id=pokemon['id'], nickname=name)
                 response = self.api.call()
