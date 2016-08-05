@@ -1,4 +1,6 @@
 #!/usr/bin/env python
+# coding=utf-8
+
 """This module renames pokemon according to user configuration"""
 
 import json
@@ -6,6 +8,7 @@ import time
 import argparse
 from itertools import groupby
 from pgoapi import PGoApi
+from random import randint
 
 class Colors:
     OKGREEN = '\033[92m'
@@ -31,7 +34,8 @@ class Renamer(object):
         parser.add_argument("-lo", "--list_only", action='store_true', default=False)
         parser.add_argument("--format", default="%ivsum, %atk/%def/%sta")
         parser.add_argument("-l", "--locale", default="en")
-	parser.add_argument("-d", "--delay", type=int, default=4)
+        parser.add_argument("--min_delay", type=int, default=10)
+        parser.add_argument("--max_delay", type=int, default=20)
 
         self.config = parser.parse_args()
         self.config.overwrite = True
@@ -119,6 +123,9 @@ class Renamer(object):
                     })
                 except KeyError:
                     pass
+        # Sort the way the in-game `Number` option would, i.e. by Pokedex number
+        # in ascending order and then by CP in descending order.
+        self.pokemons.sort(key=lambda k: (k['num'], -k['cp']))
 
     def print_pokemons(self):
         """Print pokemons and their stats"""
@@ -176,7 +183,8 @@ class Renamer(object):
                 else:
                     print "Something went wrong with renaming " + pokemon_name.replace(u'\N{MALE SIGN}', '(M)').replace(u'\N{FEMALE SIGN}', '(F)') + " (CP " + str(pokemon['cp'])  + ") to " + name + ". Error code: " + str(result)
 
-                time.sleep(self.config.delay)
+                random_delay = randint(self.config.min_delay, self.config.max_delay)
+                time.sleep(random_delay)
 
                 renamed += 1
 
@@ -198,14 +206,15 @@ class Renamer(object):
                 self.api.nickname_pokemon(pokemon_id=pokemon['id'], nickname=name_original)
                 response = self.api.call()
 
-                result = response['responses']['NICKNAME_POKEMON']['result']		
+                result = response['responses']['NICKNAME_POKEMON']['result']
 
                 if result == 1:
                     print "Resetted " + pokemon['nickname'] +  " to " + name_original
                 else:
                     print "Something went wrong with resetting " + pokemon['nickname'] + " to " + name_original + ". Error code: " + str(result)
 
-                time.sleep(self.config.delay)
+                random_delay = randint(self.config.min_delay, self.config.max_delay)
+                time.sleep(random_delay)
 
                 cleared += 1
 
