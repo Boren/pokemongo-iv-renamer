@@ -37,6 +37,9 @@ class Renamer(object):
         parser.add_argument("--min_delay", type=int, default=10)
         parser.add_argument("--max_delay", type=int, default=20)
         parser.add_argument("--iv", type=int, default=0)
+        parser.add_argument("--transfer", action='store_true', default=False)
+        parser.add_argument("-tf_iv", "--tfilter_iv", type=int, default=80)
+        parser.add_argument("-tf_cp", "--tfilter_cp", type=int, default=500)
 
         self.config = parser.parse_args()
         self.config.overwrite = True
@@ -61,6 +64,8 @@ class Renamer(object):
 
         if self.config.list_only:
             pass
+        elif self.config.transfer:
+            self.transfer_pokemons()
         elif self.config.clear:
             self.clear_pokemons()
         else:
@@ -107,6 +112,7 @@ class Renamer(object):
                     defense = pokemon.get('individual_defense', 0)
                     stamina = pokemon.get('individual_stamina', 0)
                     iv_percent = (float(attack + defense + stamina) / 45.0) * 100.0
+                    is_favorite= pokemon.get('favorite', 0)
 
                     nickname = pokemon.get('nickname', 'NONE')
                     combat_power = pokemon.get('cp', 0)
@@ -121,6 +127,7 @@ class Renamer(object):
                         'defense': defense,
                         'stamina': stamina,
                         'iv_percent': iv_percent,
+                        'is_favorite': is_favorite,
                     })
                 except KeyError:
                     pass
@@ -141,6 +148,8 @@ class Renamer(object):
 
             for pokemon in group:
                 info_text = "CP {cp} - {attack}/{defense}/{stamina} {iv_percent:.2f}%".format(**pokemon)
+                if int(pokemon.get('is_favorite')) > 0:
+                    info_text += " Favorite"
                 if pokemon.get('best_iv', False) and len(group) > 1:
                     info_text = Colors.OKGREEN + info_text + Colors.ENDC
                 print info_text
@@ -222,6 +231,45 @@ class Renamer(object):
                 cleared += 1
 
         print "Cleared " + str(cleared) + " names"
+
+    def transfer_pokemons(self):
+        """Transfer pokemon iv below setting vlaue"""
+        sorted_mons = sorted(self.pokemons, key=lambda k: (k['num'], -k['iv_percent']))
+        groups = groupby(sorted_mons, key=lambda k: k['num'])
+        transfered = 0
+
+        for key, group in groups:
+            group = list(group)
+            """If only one pokemon in group ignored this kind of pokemon"""
+            if len(group) == 1:
+                continue
+
+            for pokemon in group:
+                num = int(pokemon['num'])
+                name_original = self.pokemon_list[str(num)]
+
+                """Skip favorte one and name changed one"""
+                if (pokemon['nickname'] == "NONE" or pokemon['nickname'] == name_original) \
+                   and int(pokemon.get('is_favorite')) == 0 \
+                   and int(pokemon['iv_percent']) < self.config.tfilter_iv \
+                   and int(pokemon['cp']) < self.config.tfilter_cp:
+                    info_text = " CP {cp} - {attack}/{defense}/{stamina} {iv_percent:.2f}%".format(**pokemon)
+
+                    self.api.release_pokemon(pokemon_id=pokemon['id'])
+                    response = self.api.call()
+                    result = response['responses']['RELEASE_POKEMON']['result']
+
+                    if result == 1:
+                        print "Transferd " + name_original +info_text
+                    else:
+                        print "Something went wrong with transfer " + name_original + info_text + ". Error code: " + str(result)
+
+                    random_delay = randint(self.config.min_delay, self.config.max_delay)
+                    time.sleep(random_delay)
+
+                    transfered += 1
+
+        print "Transfered " + str(transfered) + " pokemons"
 
 if __name__ == '__main__':
     Renamer().start()
