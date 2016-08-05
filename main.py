@@ -1,4 +1,6 @@
 #!/usr/bin/env python
+# coding=utf-8
+
 """This module renames pokemon according to user configuration"""
 
 import json
@@ -121,6 +123,9 @@ class Renamer(object):
                     })
                 except KeyError:
                     pass
+        # Sort the way the in-game `Number` option would, i.e. by Pokedex number
+        # in ascending order and then by CP in descending order.
+        self.pokemons.sort(key=lambda k: (k['num'], -k['cp']))
 
     def print_pokemons(self):
         """Print pokemons and their stats"""
