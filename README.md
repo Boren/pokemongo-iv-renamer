@@ -38,6 +38,9 @@ python2 main.py -a AUTH_SERVICE -u USERNAME -p PASSWORD
 | `--min_delay`        | Minimum time (in seconds) to wait between requests; default `10`  | optional |                                                 |
 | `--max_delay`        | Maximum time (in seconds) to wait between requests; default `20`  | optional |                                                 |
 | `--iv`               | Only rename Pokémon with at least _n_% perfect IV; default `0` | optional | `--iv 90` only renames Pokémon with at least 90% perfect IV |
+| `--transfer`         | Transfer unsed Pokémon                        | optional | Will ignore favorite Pokémon                                                |
+| `--tfilter_iv`, `-tf_iv` | Only transfer Pokémon with lower than _n_% perfect IV; default `80` | optional | `--tfilter_iv 90` `-tf_iv 90` |
+| `--tfilter_cp`, `-tf_cp` | Only transfer Pokémon with lower than _n_% CP; default `500` | optional | `--tfilter_cp 90` `-tf_cp 90`  |
 
 #### Placeholders for `--format`
 
