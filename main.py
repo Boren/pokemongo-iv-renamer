@@ -6,6 +6,7 @@
 import json
 import time
 import argparse
+from functools import reduce
 from itertools import groupby
 from pgoapi import PGoApi
 from random import randint
