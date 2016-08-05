@@ -28,9 +28,9 @@ class Renamer(object):
         parser.add_argument("-a", "--auth_service", help='Auth service', choices=['ptc', 'google'], required=True)
         parser.add_argument("-u", "--username", required=True)
         parser.add_argument("-p", "--password", required=True)
-        parser.add_argument("--lat", help='Latitude (negative for south)', type=float, required=True)
-        parser.add_argument("--lng", help='Longitude (negative for west)', type=float, required=True)
-        parser.add_argument("--alt", help='Altitude', type=float, required=True)
+        parser.add_argument("--lat", help='Latitude (negative for south)', type=float)
+        parser.add_argument("--lng", help='Longitude (negative for west)', type=float)
+        parser.add_argument("--alt", help='Altitude', type=float)
         parser.add_argument("--clear", action='store_true', help='Clear modified names', default=False)
         parser.add_argument("-lo", "--list_only", action='store_true', help='Don\'t modify names', default=False)
         parser.add_argument("--format", help='Format for the modified name', default="%ivsum, %atk/%def/%sta")
@@ -76,15 +76,15 @@ class Renamer(object):
         """Prepare and sign in to API"""
         self.api = PGoApi()
         
+        if not (self.config.lat is None or self.config.lng is None or self.config.alt is None):
+            self.api.set_position(self.config.lat, self.config.lng, self.config.alt)
+        
         if not self.api.login(self.config.auth_service,
                               str(self.config.username),
-                              str(self.config.password),
-                              self.config.lat,
-                              self.config.lng,
-                              self.config.alt):
+                              str(self.config.password)):
             print("Login error")
             exit(0)
-
+        
         print("Signed in")
 
     def get_pokemons(self):
