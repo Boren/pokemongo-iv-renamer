@@ -35,6 +35,7 @@ class Renamer(object):
         parser.add_argument("--format", help='Format for the modified name', default="%ivsum, %atk/%def/%sta")
         parser.add_argument("-l", "--locale", help='Locale for displaying pkmn names', default="en")
         parser.add_argument("--iv", type=int, default=0)
+        parser.add_argument("--save", metavar='FILE', help='Save pokemon list in json file', default=None)
         parser.add_argument("--min_delay", type=int, default=10)
         parser.add_argument("--max_delay", type=int, default=20)
         parser.add_argument("--lat", help='Latitude (negative for south)', type=float)
