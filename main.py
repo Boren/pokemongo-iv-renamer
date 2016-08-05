@@ -27,16 +27,19 @@ class Renamer(object):
         """Gets configuration from command line arguments"""
         parser = argparse.ArgumentParser()
 
-        parser.add_argument("-a", "--auth_service")
-        parser.add_argument("-u", "--username")
-        parser.add_argument("-p", "--password")
-        parser.add_argument("--clear", action='store_true', default=False)
-        parser.add_argument("-lo", "--list_only", action='store_true', default=False)
-        parser.add_argument("--format", default="%ivsum, %atk/%def/%sta")
-        parser.add_argument("-l", "--locale", default="en")
+        parser.add_argument("-a", "--auth_service", help='Auth service', choices=['ptc', 'google'], required=True)
+        parser.add_argument("-u", "--username", required=True)
+        parser.add_argument("-p", "--password", required=True)
+        parser.add_argument("--clear", action='store_true', help='Clear modified names', default=False)
+        parser.add_argument("-lo", "--list_only", action='store_true', help='Don\'t modify names', default=False)
+        parser.add_argument("--format", help='Format for the modified name', default="%ivsum, %atk/%def/%sta")
+        parser.add_argument("-l", "--locale", help='Locale for displaying pkmn names', default="en")
+        parser.add_argument("--iv", type=int, default=0)
         parser.add_argument("--min_delay", type=int, default=10)
         parser.add_argument("--max_delay", type=int, default=20)
-        parser.add_argument("--iv", type=int, default=0)
+        parser.add_argument("--lat", help='Latitude (negative for south)', type=float)
+        parser.add_argument("--lng", help='Longitude (negative for west)', type=float)
+        parser.add_argument("--alt", help='Altitude', type=float)
 
         self.config = parser.parse_args()
         self.config.overwrite = True
