@@ -22,6 +22,8 @@ pip install -r requirements.txt (Might need to sudo)
 python2 main.py -a AUTH_SERVICE -u USERNAME -p PASSWORD
 ```
 
+**Note:** If you use a Google account and have two-factor authentication enabled, you need to [generate an app password](https://security.google.com/settings/security/apppasswords) and use that to log in. 
+
 | Argument             | Description                                   | Required | Example                                         |
 | -------------------- | --------------------------------------------- | -------- | ----------------------------------------------- |
 | `-a`                 | Login service, `google` or `ptc`              | yes      |                                                 |
@@ -31,7 +33,8 @@ python2 main.py -a AUTH_SERVICE -u USERNAME -p PASSWORD
 | `--list_only`, `-lo` | Show only Pokémon IVs without renaming them   | optional |                                                 |
 | `--locale`, `-l`     | Translations for Pokémon names, default `en`  | optional | `--locale de`, `-l de` (check `locales` folder for more options) |
 | `--clear`            | Reset names to original                       | optional |                                                 |
-| `--delay`, `-d`      | Time to wait between requests. Default 4 sec  | optional |                                                 |
+| `--min_delay`        | Minimum time (in seconds) to wait between requests; default `10`  | optional |                                                 |
+| `--max_delay`        | Maximum time (in seconds) to wait between requests; default `20`  | optional |                                                 |
 | `--iv`               | Filter for iv. Default 0.                     | optional | `--iv 90` (rename pokemon with at least 90 iv percent) |
 
 Placeholders for custom nickname format (automatically gets cropped to 12 characters):
