@@ -35,6 +35,7 @@ python2 main.py -a AUTH_SERVICE -u USERNAME -p PASSWORD
 | `--clear`            | Reset names to original                       | optional |                                                 |
 | `--min_delay`        | Minimum time (in seconds) to wait between requests; default `10`  | optional |                                                 |
 | `--max_delay`        | Maximum time (in seconds) to wait between requests; default `20`  | optional |                                                 |
+| `--iv`               | Filter for iv. Default 0.                     | optional | `--iv 90` (rename pokemon with at least 90 iv percent) |
 
 Placeholders for custom nickname format (automatically gets cropped to 12 characters):
 
