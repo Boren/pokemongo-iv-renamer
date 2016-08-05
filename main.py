@@ -37,6 +37,7 @@ class Renamer(object):
         parser.add_argument("--min_delay", type=int, default=10)
         parser.add_argument("--max_delay", type=int, default=20)
         parser.add_argument("--iv", type=int, default=0)
+        parser.add_argument("--save", metavar='FILE', help='Save pokemon list in json file', default=None)
 
         self.config = parser.parse_args()
         self.config.overwrite = True
@@ -58,6 +59,10 @@ class Renamer(object):
         self.setup_api()
         self.get_pokemons()
         self.print_pokemons()
+        
+        if self.config.save:
+            with open(self.config.save, 'w') as outfile:
+                json.dump(self.pokemons, outfile)
 
         if self.config.list_only:
             pass
