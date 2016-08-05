@@ -32,7 +32,7 @@ class Renamer(object):
         parser.add_argument("--format", default="%ivsum, %atk/%def/%sta")
         parser.add_argument("-l", "--locale", default="en")
 	parser.add_argument("-d", "--delay", type=int, default=4)
-	parser.add_argument("-iv", "--iv_value", type=int, default=0)
+	parser.add_argument("--iv", type=int, default=0)
 
         self.config = parser.parse_args()
         self.config.overwrite = True
@@ -163,10 +163,10 @@ class Renamer(object):
             name = name.replace("%name", pokemon_name)
             name = name[:12]
 
-            if (pokemon['nickname'] == "NONE" \
-                or pokemon['nickname'] == pokemon_name \
-                or (pokemon['nickname'] != name and self.config.overwrite)) \
-                and (iv_percent > self.config.iv_value):
+            if pokemon['nickname'] == "NONE" \
+               or pokemon['nickname'] == pokemon_name \
+               or (pokemon['nickname'] != name and self.config.overwrite) \
+               and (iv_percent > self.config.iv):
 
                 self.api.nickname_pokemon(pokemon_id=pokemon['id'], nickname=name)
                 response = self.api.call()
