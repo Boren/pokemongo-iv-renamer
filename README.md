@@ -24,22 +24,27 @@ python2 main.py -a AUTH_SERVICE -u USERNAME -p PASSWORD
 
 **Note:** If you use a Google account and have two-factor authentication enabled, you need to [generate an app password](https://security.google.com/settings/security/apppasswords) and use that to log in. 
 
+#### CLI arguments
+
 | Argument             | Description                                   | Required | Example                                         |
 | -------------------- | --------------------------------------------- | -------- | ----------------------------------------------- |
 | `-a`                 | Login service, `google` or `ptc`              | yes      |                                                 |
 | `-u`                 | Username                                      | yes      |                                                 |
 | `-p`                 | Password                                      | yes      |                                                 |
-| `--format`           | Custom nickname format, placeholders below    | optional | `--format "%percent% %name"` => `100% Vaporeon`, or `--format "%percent% %atk %def %sta"` => `100% 15 15 15` |
+| `--format`           | Custom nickname format, placeholders below    | optional | `--format "%percent% %name"` => `100% Vaporeon` |
 | `--list_only`, `-lo` | Show only Pokémon IVs without renaming them   | optional |                                                 |
 | `--locale`, `-l`     | Translations for Pokémon names, default `en`  | optional | `--locale de`, `-l de` (check `locales` folder for more options) |
 | `--clear`            | Reset names to original                       | optional |                                                 |
 | `--min_delay`        | Minimum time (in seconds) to wait between requests; default `10`  | optional |                                                 |
 | `--max_delay`        | Maximum time (in seconds) to wait between requests; default `20`  | optional |                                                 |
 
+#### Placeholders for `--format`
+
 Placeholders for custom nickname format (automatically gets cropped to 12 characters):
 
 | Placeholder | Description    | Example  |
 | ----------- | -------------- | -------- |
+| `%id`       | Pokédex ID     | 134      |
 | `%name`     | Name           | Vaporeon |
 | `%cp`       | CP             | 1800     |
 | `%atk`      | Attack         | 15       |
@@ -47,6 +52,15 @@ Placeholders for custom nickname format (automatically gets cropped to 12 charac
 | `%sta`      | Stamina        | 15       |
 | `%ivsum`    | IV sum         | 45       |
 | `%percent`  | IV perfection  | 100      |
+
+Example formats:
+
+| Parameter                             | Example        |
+| ------------------------------------- | -------------- |
+| `--format '%percent% %name'`          | `98% Vaporeon` |
+| `--format '%percent% %atk %def %sta'` | `98% 15 15 14` |
+| `--format '#%id @ %percent%'`         | `#134 @ 98%`   |
+| `--format '%id %percent %atk %def'`   | `134 98 15 15` |
 
 ## Installation with Docker
 
