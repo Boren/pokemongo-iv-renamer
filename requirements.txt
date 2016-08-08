@@ -1,2 +1,3 @@
--e git+https://github.com/tejado/pgoapi.git@ea77133c16704cbb70cbcc73defb166ff43a82f3#egg=pgoapi
+-e git+https://github.com/keyphact/pgoapi.git@691aff2543c39ba929e4aa0e325dc43d24cb24df#egg=pgoapi
 terminaltables
+requests==2.10.0
