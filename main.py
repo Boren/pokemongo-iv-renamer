@@ -7,10 +7,10 @@ import argparse
 import json
 import re
 import time
-import requests
 from itertools import groupby
 from random import randint
 
+import requests
 from pgoapi import PGoApi
 from pgoapi import utilities as util
 from terminaltables import AsciiTable
@@ -90,14 +90,14 @@ class Renamer(object):
     def get_pokemon(self):
         """Fetch Pokemon from server and store in array"""
         print "Getting Pokemon list"
-        self.api.get_inventory()
-        response_dict = self.api.call()
+        response_dict = self.api.get_inventory()
 
         self.pokemon = []
-        inventory_items = response_dict['responses'] \
-                                       ['GET_INVENTORY'] \
-                                       ['inventory_delta'] \
-                                       ['inventory_items']
+        inventory_items = (response_dict
+                           .get('responses', {})
+                           .get('GET_INVENTORY', {})
+                           .get('inventory_delta', {})
+                           .get('inventory_items', {}))
 
         for item in inventory_items:
             try:
@@ -168,7 +168,7 @@ class Renamer(object):
         table.justify_columns[3] = 'right'
         table.justify_columns[4] = 'right'
         table.justify_columns[5] = 'right'
-        print table.table
+        print table.table # Lots of Printing Causing Hanging :(
 
     def rename_pokemon(self):
         """Renames Pokemon according to configuration"""
@@ -201,8 +201,7 @@ class Renamer(object):
                 or (pokemon['nickname'] != name and self.config.overwrite)) \
                 and iv_percent >= self.config.iv:
 
-                self.api.nickname_pokemon(pokemon_id=pokemon['id'], nickname=name)
-                response = self.api.call()
+                response = self.api.nickname_pokemon(pokemon_id=pokemon['id'], nickname=name)
 
                 result = response['responses']['NICKNAME_POKEMON']['result']
 
@@ -231,8 +230,7 @@ class Renamer(object):
             name_original = self.pokemon_list[str(num)]
 
             if pokemon['nickname'] != "NONE" and pokemon['nickname'] != name_original:
-                self.api.nickname_pokemon(pokemon_id=pokemon['id'], nickname=name_original)
-                response = self.api.call()
+                response = self.api.nickname_pokemon(pokemon_id=pokemon['id'], nickname=name_original)
 
                 result = response['responses']['NICKNAME_POKEMON']['result']
 
