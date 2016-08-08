@@ -231,7 +231,7 @@ class Renamer(object):
             name_original = self.pokemon_list[str(num)]
 
             if pokemon['nickname'] != "NONE" and pokemon['nickname'] != name_original:
-                response = self.api.nickname_pokemon(pokemon_id=pokemon['id'], nickname=name_original)
+                response = self.api.nickname_pokemon(pokemon_id=pokemon['id'])
 
                 result = response['responses']['NICKNAME_POKEMON']['result']
 
