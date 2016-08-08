@@ -194,6 +194,11 @@ class Renamer(object):
                 and iv_percent >= self.config.iv:
 
                 self.api.nickname_pokemon(pokemon_id=pokemon['id'], nickname=name)
+                
+                random_delay = randint(self.config.min_delay, self.config.max_delay)
+                print "Will wait for " + str(random_delay) + " seconds before the next renaming..."
+                time.sleep(random_delay)
+                
                 response = self.api.call()
 
                 result = response['responses']['NICKNAME_POKEMON']['result']
@@ -202,10 +207,7 @@ class Renamer(object):
                     print "Renaming " + pokemon_name.replace(u'\N{MALE SIGN}', '(M)').replace(u'\N{FEMALE SIGN}', '(F)') + " (CP " + str(pokemon['cp'])  + ") to " + name
                 else:
                     print "Something went wrong with renaming " + pokemon_name.replace(u'\N{MALE SIGN}', '(M)').replace(u'\N{FEMALE SIGN}', '(F)') + " (CP " + str(pokemon['cp'])  + ") to " + name + ". Error code: " + str(result)
-
-                random_delay = randint(self.config.min_delay, self.config.max_delay)
-                time.sleep(random_delay)
-
+                
                 renamed += 1
 
             else:
