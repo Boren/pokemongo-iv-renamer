@@ -5,6 +5,7 @@
 
 import argparse
 import json
+import random
 import re
 import time
 from itertools import groupby
@@ -250,7 +251,7 @@ class Renamer(object):
         try:
             url = 'https://maps.googleapis.com/maps/api/elevation/json?locations={},{}'.format(
                 str(self.position[0]), str(self.position[1]))
-            altitude = requests.get(url).json()[u'results'][0][u'elevation']
+            altitude = requests.get(url).json()[u'results'][0][u'elevation'] + random.uniform(0.9, 1.7)
             print "Local altitude is: {0}m".format(altitude)
 
             self.position = (self.position[0], self.position[1], altitude)
