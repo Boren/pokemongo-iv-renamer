@@ -169,7 +169,7 @@ class Renamer(object):
         table.justify_columns[3] = 'right'
         table.justify_columns[4] = 'right'
         table.justify_columns[5] = 'right'
-        print table.table # Lots of Printing Causing Hanging :(
+        print table.table
 
     def rename_pokemon(self):
         """Renames Pokemon according to configuration"""
