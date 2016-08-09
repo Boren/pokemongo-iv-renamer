@@ -3,13 +3,19 @@
 
 """This module renames Pokemon according to user configuration"""
 
-import json
-import time
 import argparse
+import json
+import random
+import re
+import time
 from itertools import groupby
-from pgoapi import PGoApi
 from random import randint
+
+import requests
+from pgoapi import PGoApi
+from pgoapi import utilities as util
 from terminaltables import AsciiTable
+
 
 class Colors:
     OKGREEN = '\033[92m'
@@ -22,6 +28,7 @@ class Renamer(object):
         self.pokemon = []
         self.api = None
         self.config = None
+        self.position = None
         self.pokemon_list = None
 
     def init_config(self):
@@ -31,10 +38,11 @@ class Renamer(object):
         parser.add_argument("-a", "--auth_service")
         parser.add_argument("-u", "--username")
         parser.add_argument("-p", "--password")
+        parser.add_argument("-l", "--location")
         parser.add_argument("--clear", action='store_true', default=False)
         parser.add_argument("-lo", "--list_only", action='store_true', default=False)
         parser.add_argument("--format", default="%ivsum, %atk/%def/%sta")
-        parser.add_argument("-l", "--locale", default="en")
+        parser.add_argument("-L", "--locale", default="en")
         parser.add_argument("--min_delay", type=int, default=10)
         parser.add_argument("--max_delay", type=int, default=20)
         parser.add_argument("--iv", type=int, default=0)
@@ -70,10 +78,11 @@ class Renamer(object):
     def setup_api(self):
         """Prepare and sign in to API"""
         self.api = PGoApi()
+        self.get_location()
 
         if not self.api.login(self.config.auth_service,
                               str(self.config.username),
-                              str(self.config.password)):
+                              str(self.config.password), self.position[0], self.position[1], self.position[2]):
             print "Login error"
             exit(0)
 
@@ -82,14 +91,14 @@ class Renamer(object):
     def get_pokemon(self):
         """Fetch Pokemon from server and store in array"""
         print "Getting Pokemon list"
-        self.api.get_inventory()
-        response_dict = self.api.call()
+        response_dict = self.api.get_inventory()
 
         self.pokemon = []
-        inventory_items = response_dict['responses'] \
-                                       ['GET_INVENTORY'] \
-                                       ['inventory_delta'] \
-                                       ['inventory_items']
+        inventory_items = (response_dict
+                           .get('responses', {})
+                           .get('GET_INVENTORY', {})
+                           .get('inventory_delta', {})
+                           .get('inventory_items', {}))
 
         for item in inventory_items:
             try:
@@ -193,8 +202,7 @@ class Renamer(object):
                 or (pokemon['nickname'] != name and self.config.overwrite)) \
                 and iv_percent >= self.config.iv:
 
-                self.api.nickname_pokemon(pokemon_id=pokemon['id'], nickname=name)
-                response = self.api.call()
+                response = self.api.nickname_pokemon(pokemon_id=pokemon['id'], nickname=name)
 
                 result = response['responses']['NICKNAME_POKEMON']['result']
 
@@ -223,8 +231,7 @@ class Renamer(object):
             name_original = self.pokemon_list[str(num)]
 
             if pokemon['nickname'] != "NONE" and pokemon['nickname'] != name_original:
-                self.api.nickname_pokemon(pokemon_id=pokemon['id'], nickname=name_original)
-                response = self.api.call()
+                response = self.api.nickname_pokemon(pokemon_id=pokemon['id'], nickname=name_original)
 
                 result = response['responses']['NICKNAME_POKEMON']['result']
 
@@ -239,6 +246,31 @@ class Renamer(object):
                 cleared += 1
 
         print "Cleared " + str(cleared) + " names"
+
+    def get_elevation_for_position(self):
+        try:
+            url = 'https://maps.googleapis.com/maps/api/elevation/json?locations={},{}'.format(
+                str(self.position[0]), str(self.position[1]))
+            altitude = requests.get(url).json()[u'results'][0][u'elevation'] + random.uniform(0.9, 1.7)
+            print "Local altitude is: {0}m".format(altitude)
+
+            self.position = (self.position[0], self.position[1], altitude)
+        except requests.exceptions.RequestException:
+            print "Unable to retrieve altitude from Google APIs; setting to 0"
+
+    def get_location(self):
+        # use lat/lng directly if matches such a pattern
+        prog = re.compile("^(\-?\d+\.\d+),?\s?(\-?\d+\.\d+)$")
+        res = prog.match(self.config.location)
+        if res:
+            print "Using coordinates from CLI directly"
+            self.position = (float(res.group(1)), float(res.group(2)), 0)
+        else:
+            print "Looking up coordinates in API"
+            self.position = util.get_pos_by_name(self.config.location)
+
+        self.get_elevation_for_position()
+
 
 if __name__ == '__main__':
     Renamer().start()
