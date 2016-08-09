@@ -236,9 +236,9 @@ class Renamer(object):
                 result = response['responses']['NICKNAME_POKEMON']['result']
 
                 if result == 1:
-                    print "Resetted " + pokemon['nickname'] +  " to " + name_original
+                    print "Resetted " + pokemon['nickname'] + " to " + name_original.replace(u'\N{MALE SIGN}', '(M)').replace(u'\N{FEMALE SIGN}', '(F)')
                 else:
-                    print "Something went wrong with resetting " + pokemon['nickname'] + " to " + name_original + ". Error code: " + str(result)
+                    print "Something went wrong with resetting " + pokemon['nickname'] + " to " + name_original.replace(u'\N{MALE SIGN}', '(M)').replace(u'\N{FEMALE SIGN}', '(F)') + ". Error code: " + str(result)
 
                 random_delay = randint(self.config.min_delay, self.config.max_delay)
                 time.sleep(random_delay)
