@@ -91,6 +91,7 @@ class Renamer(object):
     def get_pokemon(self):
         """Fetch Pokemon from server and store in array"""
         print "Getting Pokemon list"
+        self.random_sleep()
         response_dict = self.api.get_inventory()
 
         self.pokemon = []
@@ -202,6 +203,8 @@ class Renamer(object):
                 or (pokemon['nickname'] != name and self.config.overwrite)) \
                 and iv_percent >= self.config.iv:
 
+                self.random_sleep()
+
                 response = self.api.nickname_pokemon(pokemon_id=pokemon['id'], nickname=name)
 
                 result = response['responses']['NICKNAME_POKEMON']['result']
@@ -210,9 +213,6 @@ class Renamer(object):
                     print "Renaming " + pokemon_name.replace(u'\N{MALE SIGN}', '(M)').replace(u'\N{FEMALE SIGN}', '(F)') + " (CP " + str(pokemon['cp'])  + ") to " + name
                 else:
                     print "Something went wrong with renaming " + pokemon_name.replace(u'\N{MALE SIGN}', '(M)').replace(u'\N{FEMALE SIGN}', '(F)') + " (CP " + str(pokemon['cp'])  + ") to " + name + ". Error code: " + str(result)
-
-                random_delay = randint(self.config.min_delay, self.config.max_delay)
-                time.sleep(random_delay)
 
                 renamed += 1
 
@@ -271,6 +271,10 @@ class Renamer(object):
 
         self.get_elevation_for_position()
 
+    def random_sleep(self):
+        random_delay = randint(self.config.min_delay, self.config.max_delay)
+        print "Will sleep for " + str(random_delay) + " seconds to slow down and not stress out the api..."
+        time.sleep(random_delay)
 
 if __name__ == '__main__':
     Renamer().start()
