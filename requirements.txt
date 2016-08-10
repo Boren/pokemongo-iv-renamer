@@ -1,1 +1,3 @@
--e git+https://github.com/tejado/pgoapi.git@ea77133c16704cbb70cbcc73defb166ff43a82f3#egg=pgoapi
+-e git+https://github.com/keyphact/pgoapi.git@7a0666fc534b4ec14741922214ac9795258685bf#egg=pgoapi
+terminaltables
+requests==2.10.0

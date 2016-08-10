@@ -1,14 +1,21 @@
 #!/usr/bin/env python
 # coding=utf-8
 
-"""This module renames pokemon according to user configuration"""
+"""This module renames Pokemon according to user configuration"""
 
-import json
-import time
 import argparse
+import json
+import random
+import re
+import time
 from itertools import groupby
-from pgoapi import PGoApi
 from random import randint
+
+import requests
+from pgoapi import PGoApi
+from pgoapi import utilities as util
+from terminaltables import AsciiTable
+
 
 class Colors:
     OKGREEN = '\033[92m'
@@ -18,9 +25,10 @@ class Renamer(object):
     """Main renamer class object"""
 
     def __init__(self):
-        self.pokemons = []
+        self.pokemon = []
         self.api = None
         self.config = None
+        self.position = None
         self.pokemon_list = None
 
     def init_config(self):
@@ -30,13 +38,15 @@ class Renamer(object):
         parser.add_argument("-a", "--auth_service")
         parser.add_argument("-u", "--username")
         parser.add_argument("-p", "--password")
+        parser.add_argument("-l", "--location")
         parser.add_argument("--clear", action='store_true', default=False)
         parser.add_argument("-lo", "--list_only", action='store_true', default=False)
         parser.add_argument("--format", default="%ivsum, %atk/%def/%sta")
-        parser.add_argument("-l", "--locale", default="en")
+        parser.add_argument("-L", "--locale", default="en")
         parser.add_argument("--min_delay", type=int, default=10)
         parser.add_argument("--max_delay", type=int, default=20)
         parser.add_argument("--iv", type=int, default=0)
+        parser.add_argument("--cp", type=int, default=0)
 
         self.config = parser.parse_args()
         self.config.overwrite = True
@@ -56,39 +66,41 @@ class Renamer(object):
             exit(0)
 
         self.setup_api()
-        self.get_pokemons()
-        self.print_pokemons()
+        self.get_pokemon()
+        self.print_pokemon()
 
         if self.config.list_only:
             pass
         elif self.config.clear:
-            self.clear_pokemons()
+            self.clear_pokemon()
         else:
-            self.rename_pokemons()
+            self.rename_pokemon()
 
     def setup_api(self):
         """Prepare and sign in to API"""
         self.api = PGoApi()
+        self.get_location()
 
         if not self.api.login(self.config.auth_service,
                               str(self.config.username),
-                              str(self.config.password)):
+                              str(self.config.password), self.position[0], self.position[1], self.position[2]):
             print "Login error"
             exit(0)
 
         print "Signed in"
 
-    def get_pokemons(self):
-        """Fetch pokemons from server and store in array"""
-        print "Getting pokemon list"
-        self.api.get_inventory()
-        response_dict = self.api.call()
+    def get_pokemon(self):
+        """Fetch Pokemon from server and store in array"""
+        print "Getting Pokemon list"
+        self.random_sleep()
+        response_dict = self.api.get_inventory()
 
-        self.pokemons = []
-        inventory_items = response_dict['responses'] \
-                                       ['GET_INVENTORY'] \
-                                       ['inventory_delta'] \
-                                       ['inventory_items']
+        self.pokemon = []
+        inventory_items = (response_dict
+                           .get('responses', {})
+                           .get('GET_INVENTORY', {})
+                           .get('inventory_delta', {})
+                           .get('inventory_items', {}))
 
         for item in inventory_items:
             try:
@@ -111,7 +123,7 @@ class Renamer(object):
                     nickname = pokemon.get('nickname', 'NONE')
                     combat_power = pokemon.get('cp', 0)
 
-                    self.pokemons.append({
+                    self.pokemon.append({
                         'id': pid,
                         'num': num,
                         'name': name,
@@ -126,31 +138,47 @@ class Renamer(object):
                     pass
         # Sort the way the in-game `Number` option would, i.e. by Pokedex number
         # in ascending order and then by CP in descending order.
-        self.pokemons.sort(key=lambda k: (k['num'], -k['cp']))
+        self.pokemon.sort(key=lambda k: (k['num'], -k['cp']))
 
-    def print_pokemons(self):
-        """Print pokemons and their stats"""
-        sorted_mons = sorted(self.pokemons, key=lambda k: (k['num'], -k['iv_percent']))
+    def print_pokemon(self):
+        """Print Pokemon and their stats"""
+        sorted_mons = sorted(self.pokemon, key=lambda k: (k['num'], -k['iv_percent']))
         groups = groupby(sorted_mons, key=lambda k: k['num'])
-
+        table_data = [
+            ['Pokemon', 'CP', 'IV %', 'ATK', 'DEF', 'STA']
+        ]
         for key, group in groups:
             group = list(group)
-            print "\n--------- " + self.pokemon_list[str(key)].replace(u'\N{MALE SIGN}', '(M)').replace(u'\N{FEMALE SIGN}', '(F)') + " ---------"
+            pokemon_name = self.pokemon_list[str(key)].replace(u'\N{MALE SIGN}', '(M)').replace(u'\N{FEMALE SIGN}', '(F)')
             best_iv_pokemon = max(group, key=lambda k: k['iv_percent'])
             best_iv_pokemon['best_iv'] = True
-
             for pokemon in group:
-                info_text = "CP {cp} - {attack}/{defense}/{stamina} {iv_percent:.2f}%".format(**pokemon)
-                if pokemon.get('best_iv', False) and len(group) > 1:
-                    info_text = Colors.OKGREEN + info_text + Colors.ENDC
-                print info_text
+                row_data = [
+                    pokemon_name,
+                    pokemon['cp'],
+                    "{0:.0f}%".format(pokemon['iv_percent']),
+                    pokemon['attack'],
+                    pokemon['defense'],
+                    pokemon['stamina']
+                ]
+                table_data.append(row_data)
+                # if pokemon.get('best_iv', False) and len(group) > 1:
+                #     row_data = [Colors.OKGREEN + str(cell) + Colors.ENDC for cell in row_data]
+        table = AsciiTable(table_data)
+        table.justify_columns[0] = 'left'
+        table.justify_columns[1] = 'right'
+        table.justify_columns[2] = 'right'
+        table.justify_columns[3] = 'right'
+        table.justify_columns[4] = 'right'
+        table.justify_columns[5] = 'right'
+        print table.table
 
-    def rename_pokemons(self):
-        """Renames pokemons according to configuration"""
+    def rename_pokemon(self):
+        """Renames Pokemon according to configuration"""
         already_renamed = 0
         renamed = 0
 
-        for pokemon in self.pokemons:
+        for pokemon in self.pokemon:
             individual_value = pokemon['attack'] + pokemon['defense'] + pokemon['stamina']
             iv_percent = int(pokemon['iv_percent'])
 
@@ -174,10 +202,12 @@ class Renamer(object):
             if (pokemon['nickname'] == "NONE" \
                 or pokemon['nickname'] == pokemon_name \
                 or (pokemon['nickname'] != name and self.config.overwrite)) \
-                and iv_percent >= self.config.iv:
+                and iv_percent >= self.config.iv \
+                and pokemon['cp'] >= self.config.cp:
 
-                self.api.nickname_pokemon(pokemon_id=pokemon['id'], nickname=name)
-                response = self.api.call()
+                self.random_sleep()
+
+                response = self.api.nickname_pokemon(pokemon_id=pokemon['id'], nickname=name)
 
                 result = response['responses']['NICKNAME_POKEMON']['result']
 
@@ -186,35 +216,31 @@ class Renamer(object):
                 else:
                     print "Something went wrong with renaming " + pokemon_name.replace(u'\N{MALE SIGN}', '(M)').replace(u'\N{FEMALE SIGN}', '(F)') + " (CP " + str(pokemon['cp'])  + ") to " + name + ". Error code: " + str(result)
 
-                random_delay = randint(self.config.min_delay, self.config.max_delay)
-                time.sleep(random_delay)
-
                 renamed += 1
 
             else:
                 already_renamed += 1
 
-        print str(renamed) + " pokemons renamed."
-        print str(already_renamed) + " pokemons already renamed."
+        print str(renamed) + " Pokemon renamed."
+        print str(already_renamed) + " Pokemon already renamed."
 
-    def clear_pokemons(self):
-        """Resets all pokemon names to the original"""
+    def clear_pokemon(self):
+        """Resets all Pokemon names to the original"""
         cleared = 0
 
-        for pokemon in self.pokemons:
+        for pokemon in self.pokemon:
             num = int(pokemon['num'])
             name_original = self.pokemon_list[str(num)]
 
             if pokemon['nickname'] != "NONE" and pokemon['nickname'] != name_original:
-                self.api.nickname_pokemon(pokemon_id=pokemon['id'], nickname=name_original)
-                response = self.api.call()
+                response = self.api.nickname_pokemon(pokemon_id=pokemon['id'], nickname=name_original)
 
                 result = response['responses']['NICKNAME_POKEMON']['result']
 
                 if result == 1:
-                    print "Resetted " + pokemon['nickname'] +  " to " + name_original
+                    print "Resetted " + pokemon['nickname'] + " to " + name_original.replace(u'\N{MALE SIGN}', '(M)').replace(u'\N{FEMALE SIGN}', '(F)')
                 else:
-                    print "Something went wrong with resetting " + pokemon['nickname'] + " to " + name_original + ". Error code: " + str(result)
+                    print "Something went wrong with resetting " + pokemon['nickname'] + " to " + name_original.replace(u'\N{MALE SIGN}', '(M)').replace(u'\N{FEMALE SIGN}', '(F)') + ". Error code: " + str(result)
 
                 random_delay = randint(self.config.min_delay, self.config.max_delay)
                 time.sleep(random_delay)
@@ -222,6 +248,35 @@ class Renamer(object):
                 cleared += 1
 
         print "Cleared " + str(cleared) + " names"
+
+    def get_elevation_for_position(self):
+        try:
+            url = 'https://maps.googleapis.com/maps/api/elevation/json?locations={},{}'.format(
+                str(self.position[0]), str(self.position[1]))
+            altitude = requests.get(url).json()[u'results'][0][u'elevation'] + random.uniform(0.9, 1.7)
+            print "Local altitude is: {0}m".format(altitude)
+
+            self.position = (self.position[0], self.position[1], altitude)
+        except requests.exceptions.RequestException:
+            print "Unable to retrieve altitude from Google APIs; setting to 0"
+
+    def get_location(self):
+        # use lat/lng directly if matches such a pattern
+        prog = re.compile("^(\-?\d+\.\d+),?\s?(\-?\d+\.\d+)$")
+        res = prog.match(self.config.location)
+        if res:
+            print "Using coordinates from CLI directly"
+            self.position = (float(res.group(1)), float(res.group(2)), 0)
+        else:
+            print "Looking up coordinates in API"
+            self.position = util.get_pos_by_name(self.config.location)
+
+        self.get_elevation_for_position()
+
+    def random_sleep(self):
+        random_delay = randint(self.config.min_delay, self.config.max_delay)
+        print "Will sleep for " + str(random_delay) + " seconds to slow down and not stress out the api..."
+        time.sleep(random_delay)
 
 if __name__ == '__main__':
     Renamer().start()
