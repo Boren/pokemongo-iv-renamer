@@ -31,9 +31,10 @@ python2 main.py -a AUTH_SERVICE -u USERNAME -p PASSWORD
 | `-a`                 | Login service, `google` or `ptc`              | yes      |                                                 |
 | `-u`                 | Username                                      | yes      |                                                 |
 | `-p`                 | Password                                      | yes      |                                                 |
+| `-l`  | Your location (by longitudes & latitudes or by name ) | yes  | `-l "49.854626, -34.995643"` or `-l "Paris"`|
 | `--format`           | Custom nickname format, placeholders below    | optional | `--format "%percent% %name"` => `100% Vaporeon` |
 | `--list_only`, `-lo` | Show only Pokémon IVs without renaming them   | optional |                                                 |
-| `--locale`, `-l`     | Translations for Pokémon names, default `en`  | optional | `--locale de`, `-l de` (check `locales` folder for more options) |
+| `--locale`, `-L`     | Translations for Pokémon names, default `en`  | optional | `--locale de`, `-l de` (check `locales` folder for more options) |
 | `--clear`            | Reset names to original                       | optional |                                                 |
 | `--min_delay`        | Minimum time (in seconds) to wait between requests; default `10`  | optional |                                                 |
 | `--max_delay`        | Maximum time (in seconds) to wait between requests; default `20`  | optional |                                                 |
