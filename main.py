@@ -46,6 +46,7 @@ class Renamer(object):
         parser.add_argument("--min_delay", type=int, default=10)
         parser.add_argument("--max_delay", type=int, default=20)
         parser.add_argument("--iv", type=int, default=0)
+        parser.add_argument("--cp", type=int, default=0)
 
         self.config = parser.parse_args()
         self.config.overwrite = True
@@ -201,7 +202,8 @@ class Renamer(object):
             if (pokemon['nickname'] == "NONE" \
                 or pokemon['nickname'] == pokemon_name \
                 or (pokemon['nickname'] != name and self.config.overwrite)) \
-                and iv_percent >= self.config.iv:
+                and iv_percent >= self.config.iv \
+                and pokemon['cp'] >= self.config.cp:
 
                 self.random_sleep()
 

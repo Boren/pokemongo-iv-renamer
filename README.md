@@ -39,6 +39,7 @@ python2 main.py -a AUTH_SERVICE -u USERNAME -p PASSWORD
 | `--min_delay`        | Minimum time (in seconds) to wait between requests; default `10`  | optional |                                                 |
 | `--max_delay`        | Maximum time (in seconds) to wait between requests; default `20`  | optional |                                                 |
 | `--iv`               | Only rename Pokémon with at least _n_% perfect IV; default `0` | optional | `--iv 90` only renames Pokémon with at least 90% perfect IV |
+| `--cp`               | Only rename Pokémon with at least _n_ CP; default `0` | optional | `--cp 1000` only renames Pokémon with at least 1000 CP |
 
 #### Placeholders for `--format`
 
