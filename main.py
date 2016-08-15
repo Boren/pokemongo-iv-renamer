@@ -30,6 +30,7 @@ class Renamer(object):
         self.config = None
         self.position = None
         self.pokemon_list = None
+        self.pokemon_move = None
 
     def init_config(self):
         """Gets configuration from command line arguments"""
@@ -61,6 +62,7 @@ class Renamer(object):
 
         try:
             self.pokemon_list = json.load(open('locales/pokemon.' + self.config.locale + '.json'))
+            self.pokemon_move = json.load(open('locales/moves.' + self.config.locale + '.json'))
         except IOError:
             print "The selected language is currently not supported"
             exit(0)
@@ -123,6 +125,9 @@ class Renamer(object):
                     nickname = pokemon.get('nickname', 'NONE')
                     combat_power = pokemon.get('cp', 0)
 
+                    move_1 = self.pokemon_move[str(pokemon.get('move_1', 0))]
+                    move_2 = self.pokemon_move[str(pokemon.get('move_2', 0))]
+
                     self.pokemon.append({
                         'id': pid,
                         'num': num,
@@ -133,6 +138,8 @@ class Renamer(object):
                         'defense': defense,
                         'stamina': stamina,
                         'iv_percent': iv_percent,
+                        'move_1': move_1,
+                        'move_2': move_2,
                     })
                 except KeyError:
                     pass
@@ -145,7 +152,7 @@ class Renamer(object):
         sorted_mons = sorted(self.pokemon, key=lambda k: (k['num'], -k['iv_percent']))
         groups = groupby(sorted_mons, key=lambda k: k['num'])
         table_data = [
-            ['Pokemon', 'CP', 'IV %', 'ATK', 'DEF', 'STA']
+            ['Pokemon', 'CP', 'IV %', 'ATK', 'DEF', 'STA', 'MV1', 'MV2']
         ]
         for key, group in groups:
             group = list(group)
@@ -159,7 +166,9 @@ class Renamer(object):
                     "{0:.0f}%".format(pokemon['iv_percent']),
                     pokemon['attack'],
                     pokemon['defense'],
-                    pokemon['stamina']
+                    pokemon['stamina'],
+                    "{0} ({1})".format(pokemon['move_1']['name'], pokemon['move_1']['power']),
+                    "{0} ({1})".format(pokemon['move_2']['name'], pokemon['move_2']['power']),
                 ]
                 table_data.append(row_data)
                 # if pokemon.get('best_iv', False) and len(group) > 1:
@@ -171,6 +180,8 @@ class Renamer(object):
         table.justify_columns[3] = 'right'
         table.justify_columns[4] = 'right'
         table.justify_columns[5] = 'right'
+        table.justify_columns[6] = 'right'
+        table.justify_columns[7] = 'right'
         print table.table
 
     def rename_pokemon(self):
