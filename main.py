@@ -152,7 +152,7 @@ class Renamer(object):
         sorted_mons = sorted(self.pokemon, key=lambda k: (k['num'], -k['iv_percent']))
         groups = groupby(sorted_mons, key=lambda k: k['num'])
         table_data = [
-            ['Pokemon', 'CP', 'IV %', 'ATK', 'DEF', 'STA', 'MV1', 'MV2']
+            ['Pokemon', 'CP', 'IV %', 'ATK', 'DEF', 'STA', 'FastATK (Damage)', 'ChargedATK (Damage)']
         ]
         for key, group in groups:
             group = list(group)
