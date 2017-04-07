@@ -1,3 +1,6 @@
+# DO NOT USE!
+Due to changes in the Pokémon Go API we now need a hashkey in order to send requests without getting banned. At the moment I have no plans to implement this, but I am open for pull requests.
+
 # PokemonGO-IV-Renamer
 
 Automatically renames your Pokémon to their IV stats.
