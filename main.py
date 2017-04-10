@@ -10,6 +10,7 @@ import re
 import time
 from itertools import groupby
 from random import randint
+from getpass import getpass
 
 import requests
 from pgoapi import PGoApi
@@ -37,7 +38,7 @@ class Renamer(object):
 
         parser.add_argument("-a", "--auth_service")
         parser.add_argument("-u", "--username")
-        parser.add_argument("-p", "--password")
+        parser.add_argument("-p", "--password", default=None)
         parser.add_argument("-l", "--location")
         parser.add_argument('--hash-key', required=True)
         parser.add_argument("--clear", action='store_true', default=False)
@@ -83,9 +84,11 @@ class Renamer(object):
         self.api.activate_hash_server(self.config.hash_key)
         self.get_location()
 
+        password = getpass() if self.config.password is None else self.config.password
+        
         if not self.api.login(self.config.auth_service,
                               str(self.config.username),
-                              str(self.config.password), self.position[0], self.position[1], self.position[2]):
+                              str(password), self.position[0], self.position[1], self.position[2]):
             print "Login error"
             exit(0)
 
